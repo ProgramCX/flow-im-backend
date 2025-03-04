@@ -1,13 +1,7 @@
 package cn.programcx.im;
 
-import cn.programcx.im.dao.BlacklistMapper;
-import cn.programcx.im.dao.FriendMapper;
-import cn.programcx.im.dao.MessageMapper;
-import cn.programcx.im.dao.UserMapper;
-import cn.programcx.im.pojo.Blacklist;
-import cn.programcx.im.pojo.Friend;
-import cn.programcx.im.pojo.Message;
-import cn.programcx.im.pojo.User;
+import cn.programcx.im.dao.*;
+import cn.programcx.im.pojo.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -35,12 +29,21 @@ class ImApplicationTests {
     @Autowired
     private BlacklistMapper blacklistMapper;
 
+    @Autowired
+    private GroupMapper groupMapper;
+
+    @Autowired
+    private GroupMemberMapper groupMemberMapper;
+
+    @Autowired
+    private GroupMessageMapper groupMessageMapper;
+
     @Test
     void insertUser() {
         User user = new User();
-        user.setUserName("刘明浩");
-        user.setEmail("2379355158@qq.com");
-        user.setPasswordHash("65+98589");
+        user.setUserName("郭子梁");
+        user.setEmail("553503285@qq.com");
+        user.setPasswordHash("aefarfresg28");
         userMapper.addUser(user);
     }
 
@@ -204,4 +207,132 @@ class ImApplicationTests {
         blacklistMapper.deleteBlockedUser(blacklist);
     }
 
+
+    @Test
+    void createGroup(){
+        User user = userMapper.getUserById(2L);
+        Group group = new Group();
+        group.setGroupName("Java技术交流群——群主是大佬");
+        group.setOwnerUser(user);
+        groupMapper.insertGroup(group);
+        System.out.println(group.getGroupId());
+        GroupMember groupMember = new GroupMember();
+        groupMember.setGroup(group);
+        groupMember.setUser(user);
+        groupMember.setRemark("大佬");
+        groupMember.setRole(GroupMember.Role.owner);
+        groupMemberMapper.insertGroupMember(groupMember);
+
+    }
+
+    @Test
+    void getGroup(){
+        Group group = groupMapper.getGroupById(1L);
+        System.out.println(group.getGroupName());
+    }
+
+    @Test
+    void updateGroupName(){
+        Group group = groupMapper.getGroupById(1L);
+        group.setGroupName("Java综合实训");
+        groupMapper.updateGroupName(group);
+    }
+
+    @Test
+    void deleteGroup(){
+        groupMapper.deleteGroupById(2L);
+    }
+
+    @Test
+    void addGroupMember(){
+        User user = userMapper.getUserById(2L);
+        Group group = groupMapper.getGroupById(2L);
+        GroupMember groupMember = new GroupMember();
+        groupMember.setGroup(group);
+        groupMember.setUser(user);
+        groupMember.setRole(GroupMember.Role.admin);
+        groupMember.setRemark("大佬");
+        groupMemberMapper.insertGroupMember(groupMember);
+    }
+
+    @Test
+    void getGroupMembers(){
+        Group group = groupMapper.getGroupById(1L);
+        List<GroupMember> groupMembers = groupMemberMapper.getGroupMembersByGroupId(group.getGroupId());
+        for(GroupMember groupMember: groupMembers){
+            System.out.println(groupMember.getUser().getUserName());
+        }
+    }
+
+    @Test
+    void modifyGroupMemberRole(){
+        User user = userMapper.getUserById(2L);
+        Group group = groupMapper.getGroupById(1L);
+        GroupMember groupMember = new GroupMember();
+        groupMember.setGroup(group);
+        groupMember.setUser(user);
+        groupMember.setRole(GroupMember.Role.member);
+        groupMemberMapper.modifyGroupMemberRole(groupMember);
+    }
+
+    @Test
+    void modifyGroupMemberRemark(){
+        User user = userMapper.getUserById(1L);
+        Group group = groupMapper.getGroupById(1L);
+        GroupMember groupMember = new GroupMember();
+        groupMember.setGroup(group);
+        groupMember.setUser(user);
+        groupMember.setRemark("菜鸟");
+        groupMemberMapper.modifyGroupMemberRemark(groupMember);
+    }
+
+    @Test
+    void deleteGroupMember(){
+        User user = userMapper.getUserById(2L);
+        Group group = groupMapper.getGroupById(1L);
+        GroupMember groupMember = new GroupMember();
+        groupMember.setGroup(group);
+        groupMember.setUser(user);
+        groupMemberMapper.deleteGroupMember(groupMember);
+    }
+
+    @Test
+    void addGroupMessage(){
+        User user = userMapper.getUserById(1L);
+        Group group = groupMapper.getGroupById(1L);
+        GroupMessage groupMessage = new GroupMessage();
+        groupMessage.setGroup(group);
+        groupMessage.setSenderUser(user);
+        groupMessage.setContent("大佬们，我是菜鸟");
+        groupMessageMapper.insertGroupMessage(groupMessage);
+    }
+
+    @Test
+    void getGroupMessage(){
+        Group group = groupMapper.getGroupById(1L);
+        List<GroupMessage> groupMessages = groupMessageMapper.getGroupMessagesByGroupId(group.getGroupId());
+        for(GroupMessage groupMessage: groupMessages){
+            System.out.println(groupMessage.getContent());
+        }
+    }
+
+    @Test
+    void deleteGroupMessage(){
+        User user = userMapper.getUserById(1L);
+        Group group = groupMapper.getGroupById(1L);
+
+        groupMessageMapper.deleteGroupMessageByMessageId(2L);
+    }
+
+    @Test
+    void getGroupsAdmin(){
+//        User user = userMapper.getUserById(1L);
+        List<Group> groups = groupMapper.getMemberUserGroups(2L);
+        for(Group group: groups){
+            System.out.println(group.getGroupName());
+        }
+    }
 }
+
+//TODO: 插入操作要返回自增主键的值
+//TODO: 接收消息偏移量

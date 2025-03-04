@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.programcx.im.dao.GroupMemberMapper">
+    <resultMap id="groupMemberResultMapper" type="cn.programcx.im.pojo.GroupMember">
+        <id column="id" property="id"/>
+        <result column="group_id" property="groupId"/>
+        <result column="user_id" property="userId"/>
+        <result column="role" property="role"/>
+        <result column="joined_at" property="joinedAt"/>
+        <result column="remark" property="remark"/>
+        <association property="user" javaType="cn.programcx.im.pojo.User">
+            <id column="user_id" property="userId"/>
+            <result column="user_name" property="userName"/>
+            <result column="email" property="email"/>
+        </association>
+        <association property="group" javaType="cn.programcx.im.pojo.Group">
+            <id column="group_id" property="groupId"/>
+            <result column="group_name" property="groupName"/>
+            <result column="created_at" property="createdAt"/>
+            <result column="owner_user_id" property="ownerUserId"/>
+        </association>
+    </resultMap>
+
+    <select id="getGroupMembersByGroupId" resultMap="groupMemberResultMapper" parameterType="Long">
+        select
+            gm.*,
+            u.user_id,u.user_name,u.email,
+            g.group_id,g.group_name,g.created_at,g.owner_user_id
+        from tb_group_members gm
+        left join tb_users u on gm.user_id = u.user_id
+        left join tb_groups g on gm.group_id = g.group_id
+        where g.group_id = #{groupId}
+    </select>
+
+    <insert id="insertGroupMember" parameterType="cn.programcx.im.pojo.GroupMember">
+        <if test="remark != null">
+            insert into tb_group_members(user_id,role,group_id,remark) values (#{user.userId},#{role},#{group.groupId},#{remark})
+        </if>
+        <if test="remark == null">
+            insert into tb_group_members(user_id,role,group_id) values (#{user.userId},#{role},#{group.groupId})
+        </if>
+    </insert>
+
+    <update id="modifyGroupMemberRole" parameterType="cn.programcx.im.pojo.GroupMember">
+        update tb_group_members
+        set role = #{role}
+        where group_id = #{group.groupId} and user_id = #{user.userId}
+    </update>
+
+    <update id="modifyGroupMemberRemark" parameterType="cn.programcx.im.pojo.GroupMember">
+        update tb_group_members
+        set remark = #{remark}
+        where group_id = #{group.groupId} and user_id = #{user.userId}
+    </update>
+
+    <delete id="deleteGroupMember" parameterType="cn.programcx.im.pojo.GroupMember">
+        delete from tb_group_members
+        where id = #{id} or (user_id = #{user.userId} and group_id = #{group.groupId})
+    </delete>
+
+</mapper>

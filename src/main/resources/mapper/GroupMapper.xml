@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.programcx.im.dao.GroupMapper">
+    <resultMap id="groupMapper" type="cn.programcx.im.pojo.Group">
+        <id column="group_id" property="groupId" />
+        <result property="groupName" column="group_name" />
+        <result property="createdAt" column="created_at" />
+        <result property="ownerUserId" column="owner_u" />
+        <association property="ownerUser" javaType="cn.programcx.im.pojo.User">
+            <id column="user_id" property="userId" />
+            <result column="user_name" property="userName" />
+            <result column="email" property="email" />
+        </association>
+    </resultMap>
+    
+    <select id="getGroupById" resultMap="groupMapper" parameterType="Long">
+        select
+            g.group_id,g.group_name,g.created_at,g.owner_user_id,
+            u.user_id,u.user_name,u.email
+        from tb_groups g
+        left join tb_users u on g.owner_user_id = u.user_id
+        where g.group_id = #{groupId}
+    </select>
+
+    <select id="getCreatedUserGroups" parameterType="Long" resultMap="groupMapper">
+        select
+            g.group_id,g.group_name,g.created_at,g.owner_user_id,
+            u.user_id,u.user_name,u.email
+        from tb_groups g
+        left join tb_users u on g.owner_user_id = u.user_id
+        where g.owner_user_id = #{userId}
+    </select>
+
+    <select id="getMemberUserGroups" parameterType="Long" resultMap="groupMapper">
+        select
+            g.*,
+            u.user_id,u.user_name,u.email
+        from tb_groups g
+        inner join tb_group_members gm on g.group_id = gm.group_id
+        left join tb_users u on g.owner_user_id = u.user_id
+        where gm.user_id = #{userId} and gm.role = 'member'
+    </select>
+
+    <select id="getAdminUserGroups" parameterType="Long" resultMap="groupMapper">
+        select
+            g.*,
+            u.user_id,u.user_name,u.email
+        from tb_groups g
+                 inner join tb_group_members gm on g.group_id = gm.group_id
+                 left join tb_users u on g.owner_user_id = u.user_id
+        where gm.user_id = #{userId} and gm.role = 'admin'
+    </select>
+
+    <update id="updateGroupName" parameterType="cn.programcx.im.pojo.Group">
+        update tb_groups
+        set group_name = #{groupName}
+        where group_id = #{groupId}
+    </update>
+
+    <insert id="insertGroup" parameterType="cn.programcx.im.pojo.Group"  useGeneratedKeys="true" keyProperty="groupId">
+        insert into tb_groups(group_name,owner_user_id)
+        values (#{groupName},#{ownerUser.userId})
+    </insert>
+
+    <delete id="deleteGroupById" parameterType="Long">
+        delete from tb_groups
+        where group_id=#{groupId}
+    </delete>
+</mapper>

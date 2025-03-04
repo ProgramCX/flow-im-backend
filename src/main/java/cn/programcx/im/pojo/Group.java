@@ -6,6 +6,16 @@ public class Group {
     private Long groupId;
     private Timestamp createdAt;
     private String groupName;
+
+    public Long getOwnerUserId() {
+        return ownerUserId;
+    }
+
+    public void setOwnerUserId(Long ownerUserId) {
+        this.ownerUserId = ownerUserId;
+    }
+
+    private Long ownerUserId;
     private User ownerUser;
 
     public Long getGroupId() {

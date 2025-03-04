@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.programcx.im.dao.GroupMessageMapper">
+    <resultMap id="groupMessageMap" type="cn.programcx.im.pojo.GroupMessage">
+        <id column="message_id" property="messageId"/>
+        <result column="content" property="content"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="sender_user_id" property="senderUserId"/>
+        <result column="group_id" property="groupId"/>
+        <association property="senderUser" javaType="cn.programcx.im.pojo.User">
+            <id column="user_id" property="userId"/>
+            <result column="user_name" property="userName"/>
+            <result column="email" property="email"/>
+        </association>
+        <association property="group" javaType="cn.programcx.im.pojo.Group">
+            <id column="group_id" property="groupId"/>
+            <result column="group_name" property="groupName"/>
+            <result column="created_at" property="createdAt"/>
+            <result column="owner_user_id" property="ownerUserId"/>
+        </association>
+    </resultMap>
+
+    <insert id="insertGroupMessage" parameterType="cn.programcx.im.pojo.GroupMessage" >
+        insert into tb_group_messages(content,sender_user_id,group_id)
+        values (#{content},#{senderUser.userId},#{group.groupId})
+    </insert>
+    
+    <select id="getGroupMessagesByGroupId" resultMap="groupMessageMap" parameterType="Long">
+        select
+            gm.*,
+            u.user_id,u.user_name,u.email,
+            g.group_id,g.group_name,g.created_at,g.owner_user_id
+        from tb_group_messages gm
+        left join tb_users u on gm.sender_user_id = u.user_id
+        left join tb_groups g on gm.group_id = g.group_id
+        where gm.group_id = #{groupId}
+    </select>
+    
+    <delete id="deleteGroupMessageByMessageId" parameterType="cn.programcx.im.pojo.GroupMessage">
+        delete from tb_group_messages
+        where message_id = #{messageId}
+    </delete>
+</mapper>
