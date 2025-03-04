@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.programcx.im.dao.MessageMapper">
+    <insert id="insertMessage" parameterType="cn.programcx.im.pojo.Message">
+        insert into tb_messages(content, state, sender_user_id, receiver_user_id)
+        values (#{content}, #{state}, #{sender.userId}, #{receiver.userId})
+    </insert>
+    
+    <select id="getMessageById" parameterType="Long" resultMap="MessageResultMap">
+        select
+            m.message_id, m.content, m.created_at, m.state,
+            u1.user_id as sender_user_id, u1.user_name as sender_user_name, u1.email as sender_email, u1.password_hash as sender_password_hash,
+            u2.user_id as receiver_user_id, u2.user_name as receiver_user_name, u2.email as receiver_email, u2.password_hash as receiver_password_hash
+        from tb_messages m
+        left join tb_users u1 on m.sender_user_id = u1.user_id
+        left join tb_users u2 on m.receiver_user_id  = u2.user_id
+        where m.message_id = #{messageId}
+    </select>
+
+    <select id="getMessageBySenderId" parameterType="Long" resultMap="MessageResultMap">
+        select
+            m.message_id,m.content,m.created_at,m.state,
+            u1.user_id as sender_user_id, u1.user_name as sender_user_name, u1.email as sender_email, u1.password_hash as sender_password_hash,
+            u2.user_id as receiver_user_id, u2.user_name as receiver_user_name, u2.email as receiver_email, u2.password_hash as receiver_password_hash
+        from db_im.tb_messages m
+        left join db_im.tb_users u1 on m.sender_user_id = u1.user_id
+        left join db_im.tb_users u2 on m.receiver_user_id = u2.user_id
+        where m.sender_user_id = #{senderId}
+    </select>
+
+    <select id="getMessageByReceiverId" parameterType="Long" resultMap="MessageResultMap">
+        select
+            m.message_id,m.content,m.created_at,m.state,
+            u1.user_id as sender_user_id, u1.user_name as sender_user_name, u1.email as sender_email, u1.password_hash as sender_password_hash,
+            u2.user_id as receiver_user_id, u2.user_name as receiver_user_name, u2.email as receiver_email, u2.password_hash as receiver_password_hash
+        from db_im.tb_messages m
+        left join db_im.tb_users u1 on m.sender_user_id = u1.user_id
+        left join db_im.tb_users u2 on m.receiver_user_id = u2.user_id
+        where m.receiver_user_id = #{receiverId}
+    </select>
+
+    <select id="getMessageBySenderOrReceiverId" parameterType="Long" resultMap="MessageResultMap">
+        select
+            m.message_id,m.content,m.created_at,m.state,
+            u1.user_id as sender_user_id, u1.user_name as sender_user_name, u1.email as sender_email, u1.password_hash as sender_password_hash,
+            u2.user_id as receiver_user_id, u2.user_name as receiver_user_name, u2.email as receiver_email, u2.password_hash as receiver_password_hash
+        from db_im.tb_messages m
+        left join db_im.tb_users u1 on m.sender_user_id = u1.user_id
+        left join db_im.tb_users u2 on m.receiver_user_id = u2.user_id
+        where m.sender_user_id = #{senderId} or m.receiver_user_id = #{receiverId}
+    </select>
+
+    <select id="getMessageBySenderAndReceiverId" parameterType="Long" resultMap="MessageResultMap">
+        select
+            m.message_id,m.content,m.created_at,m.state,
+            u1.user_id as sender_user_id, u1.user_name as sender_user_name, u1.email as sender_email, u1.password_hash as sender_password_hash,
+            u2.user_id as receiver_user_id, u2.user_name as receiver_user_name, u2.email as receiver_email, u2.password_hash as receiver_password_hash
+        from db_im.tb_messages m
+        left join db_im.tb_users u1 on m.sender_user_id = u1.user_id
+        left join db_im.tb_users u2 on m.receiver_user_id = u2.user_id
+        where m.sender_user_id = #{senderId} and m.receiver_user_id = #{receiverId}
+        order by m.created_at desc
+    </select>
+
+    <resultMap id="MessageResultMap" type="cn.programcx.im.pojo.Message">
+        <id column="message_id" property="messageId"/>
+        <result column="content" property="content"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="state" property="state"/>
+        
+        <association property="sender" javaType="cn.programcx.im.pojo.User">
+            <id column="sender_user_id" property="userId"/>
+            <result column="sender_user_name" property="userName"/>
+            <result column="sender_email" property="email"/>
+            <result column="sender_password_hash" property="passwordHash"/>
+        </association>
+        
+        <association property="receiver" javaType="cn.programcx.im.pojo.User">
+            <id column="receiver_user_id" property="userId"/>
+            <result column="receiver_user_name" property="userName"/>
+            <result column="receiver_email" property="email"/>
+            <result column="receiver_password_hash" property="passwordHash"/>
+        </association>
+    </resultMap>
+
+    <update id="updateMessageState" parameterType="cn.programcx.im.pojo.Message">
+        update tb_messages set state = #{state}
+        where message_id = #{messageId}
+    </update>
+
+    <delete id="deleteMessageById" parameterType="Long">
+        delete from tb_messages where message_id = #{messageId}
+    </delete>
+
+</mapper>

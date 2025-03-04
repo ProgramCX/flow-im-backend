@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.programcx.im.dao.UserMapper">
+    <insert id="addUser" parameterType="cn.programcx.im.pojo.User">
+        insert into tb_users (user_name, email, password_hash)
+        values (#{userName},#{email},#{passwordHash})
+    </insert>
+
+    <select id="getUserById" parameterType="Long" resultType="cn.programcx.im.pojo.User">
+        select * from tb_users where user_id = #{userId}
+    </select>
+
+    <select id="getUserByName" parameterType="String" resultType="cn.programcx.im.pojo.User">
+        select * from tb_users where user_name = #{userName}
+    </select>
+
+    <update id="updateUser" parameterType="cn.programcx.im.pojo.User">
+        update tb_users set user_name = #{userName}, email = #{email}, password_hash = #{passwordHash}
+        where user_id = #{userId}
+    </update>
+
+    <delete id="deleteUserById" parameterType="Long">
+        delete from tb_users where user_id = #{userId}
+    </delete>
+</mapper>

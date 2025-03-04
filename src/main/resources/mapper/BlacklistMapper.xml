@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.programcx.im.dao.BlacklistMapper">
+    <insert id="insertBlacklist" parameterType="cn.programcx.im.pojo.Blacklist">
+        insert into tb_blacklist(user_id,blocked_user_id)
+        values (#{user.userId},#{blockedUser.userId})
+    </insert>
+
+    <resultMap id="BlacklistResultMap" type="cn.programcx.im.pojo.Blacklist">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="blockedUserId" column="blocked_user_id"/>
+        <result property="createdAt" column="created_at"/>
+        <association property="user" javaType="cn.programcx.im.pojo.User">
+            <id property="userId" column="user_user_id"/>
+            <result property="userName" column="user_user_name"/>
+            <result property="email" column="user_email"/>
+        </association>
+        <association property="blockedUser" javaType="cn.programcx.im.pojo.User">
+            <id property="userId" column="blocked_user_user_id"/>
+            <result property="userName" column="blocked_user_user_name"/>
+            <result property="email" column="blocked_user_email"/>
+        </association>
+
+    </resultMap>
+
+    <select id="getBlockedUsers" resultMap="BlacklistResultMap" parameterType="cn.programcx.im.pojo.User">
+        select
+            b.id,b.user_id,b.blocked_user_id,b.created_at,
+            tu.user_id as user_user_id,tu.user_name as user_user_name,tu.email as user_email,
+            tu1.user_id as blocked_user_user_id,tu1.user_name as blocked_user_user_name,tu1.email as blocked_user_email
+        from tb_blacklist b
+        left join tb_users tu on tu.user_id = b.user_id
+        left join tb_users tu1 on tu1.user_id = b.blocked_user_id
+        where b.user_id = #{userId}
+    </select>
+
+    <delete id="deleteBlockedUser" parameterType="cn.programcx.im.dao.BlacklistMapper">
+        delete from tb_blacklist
+        where user_id = #{user.userId} and blocked_user_id = #{blockedUser.userId}
+    </delete>
+
+</mapper>

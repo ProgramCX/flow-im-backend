@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.programcx.im.dao.FriendMapper">
+    <insert id="addFriend" parameterType="cn.programcx.im.pojo.Friend">
+        insert into tb_friends(user_id,friend_id,status)
+        values (#{user.userId},#{friend.userId},#{status})
+    </insert>
+
+    <select id="getAllFriends" resultMap="FriendsResultMap" parameterType="cn.programcx.im.pojo.User">
+        select
+            f.id, f.user_id,f.friend_id,f.status,
+            tu.user_id as friend_user_id, tu.user_name as friend_user_name, tu.email as friend_email,
+            tu1.user_id as user_user_id, tu1.user_name as user_user_name, tu1.email as user_email
+        from tb_friends f
+        left join tb_users tu on tu.user_id = f.friend_id
+        left join tb_users tu1 on tu1.user_id = f.user_id
+        where f.user_id = #{user.userId}
+        order by tu.user_name
+    </select>
+
+    <select id="getFriendByState" resultMap="FriendsResultMap" >
+        select
+            f.id, f.user_id,f.friend_id,f.status,
+            tu.user_id as friend_user_id, tu.user_name as friend_user_name, tu.email as friend_email,
+            tu1.user_id as user_user_id, tu1.user_name as user_user_name, tu1.email as user_email
+        from tb_friends f
+        left join tb_users tu on tu.user_id = f.friend_id
+        left join tb_users tu1 on tu1.user_id = f.user_id
+        where f.user_id = #{userId} and f.status = #{state}
+        order by tu.user_name
+    </select>
+
+    <update id="updateFriendStatus" parameterType="cn.programcx.im.pojo.Friend">
+        update tb_friends
+        set status = #{status}
+        where user_id = #{user.userId} and friend_id = #{friend.userId}
+    </update>
+
+    <delete id="deleteFriend" parameterType="cn.programcx.im.pojo.Friend">
+        delete from tb_friends
+        where user_id = #{user.userId} and friend_id = #{friend.userId}
+    </delete>
+
+    <resultMap id="FriendsResultMap" type="cn.programcx.im.pojo.Friend">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="friendId" column="friend_id"/>
+        <result property="status" column="status"/>
+        <association property="user" javaType="cn.programcx.im.pojo.User">
+            <id property="userId" column="user_user_id"/>
+            <result property="userName" column="user_user_name"/>
+            <result property="email" column="user_email"/>
+        </association>
+
+        <association property="friend" javaType="cn.programcx.im.pojo.User">
+            <id property="userId" column="friend_user_id"/>
+            <result property="userName" column="friend_user_name"/>
+            <result property="email" column="friend_email"/>
+        </association>
+    </resultMap>
+    
+</mapper>
