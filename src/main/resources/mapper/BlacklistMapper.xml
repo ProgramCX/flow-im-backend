@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.programcx.im.dao.BlacklistMapper">
-    <insert id="insertBlacklist" parameterType="cn.programcx.im.pojo.Blacklist">
-        insert into tb_blacklist(user_id,blocked_user_id)
+    <insert id="insertBlacklist" parameterType="cn.programcx.im.pojo.Blacklist" useGeneratedKeys="true" keyProperty="id">
+        insert ignore into tb_blacklist(user_id,blocked_user_id)
         values (#{user.userId},#{blockedUser.userId})
     </insert>
 

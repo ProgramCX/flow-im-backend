@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cn.programcx.im.dao.DeviceReadOffsetMapper">
+    <insert id="insertDeviceReadOffset" parameterType="cn.programcx.im.pojo.DeviceReadOffset">
+        INSERT INTO tb_device_read_offset (device_id, user_id,friend_user_id, last_read_msg_id)
+        VALUES (#{deviceId}, #{userId}, #{friendUserId}, #{lastReadMsgId})
+        ON DUPLICATE KEY UPDATE last_read_msg_id = #{lastReadMsgId}
+    </insert>
+    <select id="getDeviceReadOffset" resultType="cn.programcx.im.pojo.DeviceReadOffset" >
+        select * from tb_device_read_offset where device_id = #{deviceId} and user_id = #{userId} and friend_user_id = #{friendUserId}
+    </select>
+</mapper>

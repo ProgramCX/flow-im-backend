@@ -21,7 +21,7 @@
         </association>
     </resultMap>
 
-    <insert id="insertGroupMessage" parameterType="cn.programcx.im.pojo.GroupMessage" >
+    <insert id="insertGroupMessage" parameterType="cn.programcx.im.pojo.GroupMessage" useGeneratedKeys="true" keyProperty="messageId">
         insert into tb_group_messages(content,sender_user_id,group_id)
         values (#{content},#{senderUser.userId},#{group.groupId})
     </insert>
@@ -34,7 +34,7 @@
         from tb_group_messages gm
         left join tb_users u on gm.sender_user_id = u.user_id
         left join tb_groups g on gm.group_id = g.group_id
-        where gm.group_id = #{groupId}
+        where gm.group_id = #{groupId} and gm.message_id > #{lastMessageId} order by gm.created_at desc
     </select>
     
     <delete id="deleteGroupMessageByMessageId" parameterType="cn.programcx.im.pojo.GroupMessage">

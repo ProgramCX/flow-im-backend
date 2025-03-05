@@ -1,6 +1,7 @@
 package cn.programcx.im;
 
 import cn.programcx.im.dao.*;
+import cn.programcx.im.dao.GroupDeviceReadOffsetMapper;
 import cn.programcx.im.pojo.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -38,6 +39,12 @@ class ImApplicationTests {
     @Autowired
     private GroupMessageMapper groupMessageMapper;
 
+    @Autowired
+    private GroupDeviceReadOffsetMapper groupDeviceReadOffsetMapper;
+
+    @Autowired
+    private DeviceReadOffsetMapper deviceReadOffsetMapper;
+
     @Test
     void insertUser() {
         User user = new User();
@@ -60,12 +67,12 @@ class ImApplicationTests {
 
     @Test
     void sendMessage() {
-        User from = userMapper.getUserById(2L);
-        User to = userMapper.getUserById(1L);
+        User from = userMapper.getUserById(1L);
+        User to = userMapper.getUserById(2L);
         System.out.println(from.getUserId());
         System.out.println(to.getUserId());
         Message message = new Message();
-        message.setContent("程旭菜鸟，你好");
+        message.setContent("刘明浩大佬带带我😍😍😍");
         message.setSender(from);
         message.setReceiver(to);
         message.setState(Message.State.sent);
@@ -106,16 +113,23 @@ class ImApplicationTests {
 
     @Test
     void getMessageBySAndRId() {
-        List<Message> messageList = messageMapper.getMessageBySenderAndReceiverId(1L, 2L);
+        DeviceReadOffset deviceReadOffset = deviceReadOffsetMapper.getDeviceReadOffset(1L,2L,"eaf4897ea8eabfff");
+        List<Message> messageList = messageMapper.getMessageBySenderAndReceiverId(1L, 2L,deviceReadOffset.getLastReadMsgId());
+        if(messageList.isEmpty()){
+            return;
+        }
+        Long lastReadMsgId = messageList.get(0).getMessageId();
         for (Message message : messageList) {
             System.out.println(message.getContent());
         }
+        deviceReadOffset.setLastReadMsgId(lastReadMsgId);
+        deviceReadOffsetMapper.insertDeviceReadOffset(deviceReadOffset);
     }
 
     @Test
     void updateMsg() {
         Message message = new Message();
-        message.setMessageId(1L);
+        message.setMessageId(5L);
         message.setState(Message.State.read);
         messageMapper.updateMessageState(message);
     }
@@ -127,13 +141,14 @@ class ImApplicationTests {
 
     @Test
     void addFriend() {
-        User user = userMapper.getUserById(2L);
-        User friend = userMapper.getUserById(4L);
+        User user = userMapper.getUserById(1L);
+        User friend = userMapper.getUserById(5L);
         Friend friendRelation = new Friend();
         friendRelation.setFriend(friend);
         friendRelation.setUser(user);
         friendRelation.setStatus(Friend.Status.accepted);
         friendMapper.addFriend(friendRelation);
+        System.out.println(friendRelation.getId());
     }
 
     @Test
@@ -143,7 +158,7 @@ class ImApplicationTests {
         friend.setUser(userMapper.getUserById(1L));
         List<Friend> friends = friendMapper.getAllFriends(friend);
         for (Friend fd : friends) {
-            System.out.println(fd.getFriend().getUserName());
+            System.out.println(fd.getFriend());
         }
     }
 
@@ -303,17 +318,26 @@ class ImApplicationTests {
         GroupMessage groupMessage = new GroupMessage();
         groupMessage.setGroup(group);
         groupMessage.setSenderUser(user);
-        groupMessage.setContent("大佬们，我是菜鸟");
+        groupMessage.setContent("以后向大佬请教，请大佬多多包涵！！！");
         groupMessageMapper.insertGroupMessage(groupMessage);
     }
 
     @Test
     void getGroupMessage(){
         Group group = groupMapper.getGroupById(1L);
-        List<GroupMessage> groupMessages = groupMessageMapper.getGroupMessagesByGroupId(group.getGroupId());
+        GroupDeviceReadOffset groupDeviceReadOffset = groupDeviceReadOffsetMapper.getGroupDeviceReadOffset(1L, "eaf4897ea8eabfff", 1L);
+        System.out.println(groupDeviceReadOffset.getLastReadMsgId());
+        List<GroupMessage> groupMessages = groupMessageMapper.getGroupMessagesByGroupId(group.getGroupId(),groupDeviceReadOffset.getLastReadMsgId());
+        if(groupMessages.isEmpty()){
+            return;
+        }
+        Long lastReadMsgId = groupMessages.get(0).getMessageId();
         for(GroupMessage groupMessage: groupMessages){
             System.out.println(groupMessage.getContent());
         }
+        System.out.println(lastReadMsgId);
+        groupDeviceReadOffset.setLastReadMsgId(lastReadMsgId);
+        groupDeviceReadOffsetMapper.insertGroupDeviceReadOffset(groupDeviceReadOffset);
     }
 
     @Test
@@ -332,7 +356,38 @@ class ImApplicationTests {
             System.out.println(group.getGroupName());
         }
     }
+
+    @Test
+    void markReadMessage(){
+        GroupDeviceReadOffset groupDeviceReadOffset = new GroupDeviceReadOffset();
+        groupDeviceReadOffset.setGroupId(1L);
+        groupDeviceReadOffset.setDeviceId("eaf4897ea8eabfff");
+        groupDeviceReadOffset.setUserId(1L);
+        groupDeviceReadOffset.setLastReadMsgId(1L);
+        groupDeviceReadOffsetMapper.insertGroupDeviceReadOffset(groupDeviceReadOffset);
+    }
+
+    @Test
+    void getGroupDeviceReadOffset() {
+        GroupDeviceReadOffset groupDeviceReadOffset = groupDeviceReadOffsetMapper.getGroupDeviceReadOffset(1L, "eaf4897ea8eabfff", 1L);
+        System.out.println(groupDeviceReadOffset.getLastReadMsgId());
+    }
+
+    @Test
+    void markOneToOneMessageRead() {
+        DeviceReadOffset deviceReadOffset = new DeviceReadOffset();
+        deviceReadOffset.setDeviceId("eaf4897ea8eabfff");
+        deviceReadOffset.setUserId(1L);
+        deviceReadOffset.setLastReadMsgId(2L);
+        deviceReadOffset.setFriendUserId(2L);
+        deviceReadOffsetMapper.insertDeviceReadOffset(deviceReadOffset);
+    }
+
+    @Test
+    void getDeviceReadOffset() {
+        DeviceReadOffset deviceReadOffset = deviceReadOffsetMapper.getDeviceReadOffset(1L, 2L,"eaf4897ea8eabfff");
+        System.out.println(deviceReadOffset.getLastReadMsgId());
+    }
 }
 
-//TODO: 插入操作要返回自增主键的值
 //TODO: 接收消息偏移量

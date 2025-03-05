@@ -15,7 +15,7 @@ public interface MessageMapper {
     List<Message> getMessageById(Long id);
     List<Message> getMessageBySenderId(Long id);
     List<Message> getMessageByReceiverId(Long id);
-    List<Message> getMessageBySenderAndReceiverId(@Param("senderId") Long senderId, @Param("receiverId") Long receiverId);
+    List<Message> getMessageBySenderAndReceiverId(@Param("senderId") Long senderId, @Param("receiverId") Long receiverId, @Param("lastMessageId") Long lastMessageId);
     List<Message> getMessageBySenderOrReceiverId(Long id);
     void updateMessageState(Message message);
     void deleteMessageById(Long id);

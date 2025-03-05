@@ -33,9 +33,9 @@
         where g.group_id = #{groupId}
     </select>
 
-    <insert id="insertGroupMember" parameterType="cn.programcx.im.pojo.GroupMember">
+    <insert id="insertGroupMember" parameterType="cn.programcx.im.pojo.GroupMember" keyProperty="id" useGeneratedKeys="true">
         <if test="remark != null">
-            insert into tb_group_members(user_id,role,group_id,remark) values (#{user.userId},#{role},#{group.groupId},#{remark})
+            insert ignore into tb_group_members(user_id,role,group_id,remark) values (#{user.userId},#{role},#{group.groupId},#{remark})
         </if>
         <if test="remark == null">
             insert into tb_group_members(user_id,role,group_id) values (#{user.userId},#{role},#{group.groupId})

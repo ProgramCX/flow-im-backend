@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.programcx.im.dao.FriendMapper">
-    <insert id="addFriend" parameterType="cn.programcx.im.pojo.Friend">
-        insert into tb_friends(user_id,friend_id,status)
+    <insert id="addFriend" parameterType="cn.programcx.im.pojo.Friend" useGeneratedKeys="true" keyProperty="id">
+        insert ignore into tb_friends(user_id,friend_id,status)
         values (#{user.userId},#{friend.userId},#{status})
     </insert>
 

@@ -59,7 +59,7 @@
     </update>
 
     <insert id="insertGroup" parameterType="cn.programcx.im.pojo.Group"  useGeneratedKeys="true" keyProperty="groupId">
-        insert into tb_groups(group_name,owner_user_id)
+        insert ignore into tb_groups(group_name,owner_user_id)
         values (#{groupName},#{ownerUser.userId})
     </insert>
 
