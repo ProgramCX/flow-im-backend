@@ -22,10 +22,25 @@
     </resultMap>
 
     <insert id="insertGroupMessage" parameterType="cn.programcx.im.pojo.GroupMessage" useGeneratedKeys="true" keyProperty="messageId">
-        insert into tb_group_messages(content,sender_user_id,group_id)
-        values (#{content},#{senderUser.userId},#{group.groupId})
+        insert into tb_group_messages
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="messageId != null">message_id,</if>
+            content,
+            sender_user_id,
+            group_id,
+            <if test="createdAt != null">created_at,</if>
+        </trim>
+        values
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="messageId != null">#{messageId},</if>
+            #{content},
+            #{senderUser.userId},
+            #{group.groupId},
+            <if test="createdAt != null">DATE_FORMAT(#{createdAt},'%Y-%m-%d %H:%i:%s'),</if>
+        </trim>
     </insert>
-    
+
+
     <select id="getGroupMessagesByGroupId" resultMap="groupMessageMap" parameterType="Long">
         select
             gm.*,

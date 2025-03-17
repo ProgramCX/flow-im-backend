@@ -1,7 +1,6 @@
 package cn.programcx.im.dao;
 
 import cn.programcx.im.pojo.Group;
-import cn.programcx.im.pojo.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.springframework.stereotype.Repository;
 

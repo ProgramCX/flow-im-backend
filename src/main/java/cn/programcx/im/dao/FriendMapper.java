@@ -13,7 +13,7 @@ import java.util.List;
 public interface FriendMapper {
     void addFriend(Friend friend);
     List<Friend> getAllFriends(Friend friend);
-    <userId> List<Friend> getFriendByState(@Param("userId")Long userId , @Param("state") Friend.Status state);
+    List<Friend> getFriendByState(@Param("userId")Long userId , @Param("state") Friend.Status state);
     void updateFriendStatus(Friend friend);
     void deleteFriend(Friend friend);
 

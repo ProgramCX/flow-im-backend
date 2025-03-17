@@ -3,6 +3,12 @@ package cn.programcx.im;
 import cn.programcx.im.dao.*;
 import cn.programcx.im.dao.GroupDeviceReadOffsetMapper;
 import cn.programcx.im.pojo.*;
+import cn.programcx.im.service.GroupMessageStoreService;
+import cn.programcx.im.service.UserMessageStoreService;
+import cn.programcx.im.service.UserStateService;
+import cn.programcx.im.util.DateTimeUtil;
+import io.github.cdimascio.dotenv.Dotenv;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -14,10 +20,88 @@ import java.util.List;
 @SpringBootTest
 class ImApplicationTests {
 
+    private static Dotenv dotenv;
+
+    @Autowired
+    private UserMessageStoreService userMessageStoreService;
+
+    @Autowired
+    private GroupMessageStoreService groupMessageStoreService;
+
+    @BeforeAll
+    static void setup() {
+        dotenv = Dotenv.configure()
+                .directory(".")
+                .filename(".env")  // 指定文件名
+                .load();
+
+        dotenv.entries().forEach(entry ->
+                System.setProperty(entry.getKey(), entry.getValue())
+        );
+    }
+
+    @Test
+    void testSchedule() {
+        userMessageStoreService.syncToDatabase();
+    }
+    @Test
+    void testCacheMessage() {
+        Message message = new Message();
+        message.setReceiverUserId(1L);
+        message.setSenderUserId(2L);
+        message.setContent("Hello, lmh!");
+        message.setCreatedAt(DateTimeUtil.getCreatedAt());
+        message.setState(Message.State.sent);
+        message.setMessageId(22L);
+        User sender = new User();
+        sender.setUserId(1L);
+
+        User receiver = new User();
+        receiver.setUserId(2L);
+        message.setSender(sender);
+        message.setReceiver(receiver);
+        userMessageStoreService.cacheMessage(message);
+    }
+
+    @Test
+    void testGroupMessages() {
+        GroupMessage groupMessage = new GroupMessage();
+        groupMessage.setGroupId(1L);
+        groupMessage.setContent("Hello, lmh!");
+        groupMessage.setCreatedAt(DateTimeUtil.getCreatedAt());
+        groupMessage.setMessageId(20L);
+        Group group = new Group();
+        group.setGroupId(1L);
+        User sender = new User();
+        sender.setUserId(1L);
+        groupMessage.setGroup(group);
+        groupMessage.setSenderUser(sender);
+        groupMessageStoreService.cacheMessage(groupMessage);
+    }
+
+    @Test
+    void testGetGroupMessages() {
+        groupMessageStoreService.syncGroupMessages();
+    }
+    @Test
+    void testGetUserMessages() {
+        List<Message> messages = userMessageStoreService.getRedisUserMessages("1", "2", 0L);
+        for (Message message : messages) {
+            System.out.println(message.getContent());
+        }
+    }
+
     @Test
     void contextLoads() {
     }
 
+    @Autowired
+    UserStateService userStateService;
+
+    @Test
+    public void testUserStateService() {
+        userStateService.setUserOnline(1L);
+    }
     @Autowired
     private UserMapper userMapper;
 
