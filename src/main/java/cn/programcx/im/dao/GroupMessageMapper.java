@@ -12,5 +12,5 @@ import java.util.List;
 public interface GroupMessageMapper {
     void insertGroupMessage(GroupMessage groupMessage);
     void deleteGroupMessageByMessageId(Long messageId);
-    List<GroupMessage> getGroupMessagesByGroupId(@Param("groupId") Long groupId,@Param("lastMessageId") Long lastMessageId);
+    List<GroupMessage> getGroupMessagesByGroupId(@Param("groupId") Long groupId, @Param("lastReadMessageId") Long lastReadMessageId,@Param("limit") Long limit);
 }

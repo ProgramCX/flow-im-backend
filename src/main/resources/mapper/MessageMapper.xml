@@ -76,7 +76,10 @@
         left join db_im.tb_users u1 on m.sender_user_id = u1.user_id
         left join db_im.tb_users u2 on m.receiver_user_id = u2.user_id
         where ((m.sender_user_id = #{senderId} and m.receiver_user_id = #{receiverId}) or (m.sender_user_id = #{receiverId} and m.receiver_user_id =#{senderId})) and m.message_id > #{lastMessageId}
-        order by m.created_at desc
+        order by m.message_id desc, m.created_at desc
+        <if test="limit>0">
+            limit #{limit}
+        </if>
     </select>
 
     <resultMap id="MessageResultMap" type="cn.programcx.im.pojo.Message">

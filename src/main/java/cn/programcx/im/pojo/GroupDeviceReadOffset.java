@@ -8,7 +8,17 @@ public class GroupDeviceReadOffset {
     private String deviceId;
     private Long userId;
     private Long lastReadMsgId;
+    private Long lastMsgId;
+
     private Timestamp lastReadTime;
+
+    public Long getLastMsgId() {
+        return lastMsgId;
+    }
+
+    public void setLastMsgId(Long lastMsgId) {
+        this.lastMsgId = lastMsgId;
+    }
 
     public Long getId() {
         return id;

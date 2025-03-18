@@ -9,6 +9,15 @@ public class DeviceReadOffset {
     private String deviceId;
     private Long lastReadMsgId;
     private Timestamp lastReadTime;
+    private Long lastMsgId;
+
+    public Long getLastMsgId() {
+        return lastMsgId;
+    }
+
+    public void setLastMsgId(Long lastMsgId) {
+        this.lastMsgId = lastMsgId;
+    }
 
     public Long getId() {
         return id;

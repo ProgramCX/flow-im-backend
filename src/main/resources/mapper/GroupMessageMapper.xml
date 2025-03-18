@@ -49,7 +49,9 @@
         from tb_group_messages gm
         left join tb_users u on gm.sender_user_id = u.user_id
         left join tb_groups g on gm.group_id = g.group_id
-        where gm.group_id = #{groupId} and gm.message_id > #{lastMessageId} order by gm.created_at desc
+        where gm.group_id = #{groupId} and gm.message_id > #{lastReadMessageId}
+        order by gm.message_id desc ,gm.created_at desc
+        limit #{limit}
     </select>
     
     <delete id="deleteGroupMessageByMessageId" parameterType="cn.programcx.im.pojo.GroupMessage">

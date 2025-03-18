@@ -8,17 +8,19 @@
         <result property="deviceId" column="device_id"/>
         <result property="userId" column="user_id"/>
         <result property="lastReadMsgId" column="last_read_msg_id"/>
+        <result property="lastMessageId" column="last_msg_id"/>
         <result property="lastReadTime" column="last_read_time"/>
     </resultMap>
 
     <insert id="insertGroupDeviceReadOffset" parameterType="cn.programcx.im.pojo.GroupDeviceReadOffset">
-        INSERT INTO tb_group_device_read_offset (group_id, device_id, user_id, last_read_msg_id)
-        VALUES (#{groupId}, #{deviceId}, #{userId}, #{lastReadMsgId})
-        ON DUPLICATE KEY UPDATE last_read_msg_id = #{lastReadMsgId}
+        INSERT INTO tb_group_device_read_offset (group_id, device_id, user_id, last_read_msg_id, last_msg_id)
+        VALUES (#{groupId}, #{deviceId}, #{userId}, #{lastReadMsgId}, #{lastMessageId})
+        ON DUPLICATE KEY UPDATE last_read_msg_id = #{lastReadMsgId}, last_msg_id = #{lastMessageId}
     </insert>
     
     <select id="getGroupDeviceReadOffset" resultMap="groupDeviceReadOffsetResultMap">
         select * from tb_group_device_read_offset where group_id = #{groupId} and device_id = #{deviceId} and user_id = #{userId}
     </select>
+
 
 </mapper>

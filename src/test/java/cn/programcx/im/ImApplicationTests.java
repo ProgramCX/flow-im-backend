@@ -46,37 +46,45 @@ class ImApplicationTests {
     }
     @Test
     void testCacheMessage() {
-        Message message = new Message();
-        message.setReceiverUserId(1L);
-        message.setSenderUserId(2L);
-        message.setContent("Hello, lmh!");
-        message.setCreatedAt(DateTimeUtil.getCreatedAt());
-        message.setState(Message.State.sent);
-        message.setMessageId(22L);
-        User sender = new User();
-        sender.setUserId(1L);
+        for(int i=0;i<7;i++){
+            Message message = new Message();
+            message.setReceiverUserId(1L);
+            message.setSenderUserId(2L);
+            message.setContent("Hello, lmh! " +i);
+            message.setCreatedAt(DateTimeUtil.getCreatedAt());
+            message.setState(Message.State.sent);
+//            message.setMessageId(24L);
+            User sender = new User();
+            sender.setUserId(1L);
 
-        User receiver = new User();
-        receiver.setUserId(2L);
-        message.setSender(sender);
-        message.setReceiver(receiver);
-        userMessageStoreService.cacheMessage(message);
+            User receiver = new User();
+            receiver.setUserId(2L);
+            message.setSender(sender);
+            message.setReceiver(receiver);
+            userMessageStoreService.cacheMessage(message);
+        }
+
     }
 
     @Test
+    void testSyncMessage(){
+        userMessageStoreService.syncToDatabase();
+    }
+    @Test
     void testGroupMessages() {
-        GroupMessage groupMessage = new GroupMessage();
-        groupMessage.setGroupId(1L);
-        groupMessage.setContent("Hello, lmh!");
-        groupMessage.setCreatedAt(DateTimeUtil.getCreatedAt());
-        groupMessage.setMessageId(20L);
-        Group group = new Group();
-        group.setGroupId(1L);
-        User sender = new User();
-        sender.setUserId(1L);
-        groupMessage.setGroup(group);
-        groupMessage.setSenderUser(sender);
-        groupMessageStoreService.cacheMessage(groupMessage);
+        for(int i=0;i<7;i++) {
+            GroupMessage groupMessage = new GroupMessage();
+            groupMessage.setGroupId(1L);
+            groupMessage.setContent("Hello, lmh! "+String.valueOf(i));
+            groupMessage.setCreatedAt(DateTimeUtil.getCreatedAt());
+            Group group = new Group();
+            group.setGroupId(1L);
+            User sender = new User();
+            sender.setUserId(1L);
+            groupMessage.setGroup(group);
+            groupMessage.setSenderUser(sender);
+            groupMessageStoreService.cacheMessage(groupMessage);
+        }
     }
 
     @Test
@@ -85,12 +93,19 @@ class ImApplicationTests {
     }
     @Test
     void testGetUserMessages() {
-        List<Message> messages = userMessageStoreService.getRedisUserMessages("1", "2", 0L);
+        List<Message> messages = userMessageStoreService.getRedisUserMessages(1L, 2L, 5148L);
         for (Message message : messages) {
-            System.out.println(message.getContent());
+            System.out.println(message.getMessageId());
         }
     }
 
+    @Test
+    void testGetGroupMessagesByGroupId() {
+        List<GroupMessage> messages = groupMessageStoreService.getRedisGroupMessage(1L,6048L);
+        for(GroupMessage message: messages){
+            System.out.println(message.getMessageId());
+        }
+    }
     @Test
     void contextLoads() {
     }
@@ -198,7 +213,7 @@ class ImApplicationTests {
     @Test
     void getMessageBySAndRId() {
         DeviceReadOffset deviceReadOffset = deviceReadOffsetMapper.getDeviceReadOffset(1L,2L,"eaf4897ea8eabfff");
-        List<Message> messageList = messageMapper.getMessageBySenderAndReceiverId(1L, 2L,deviceReadOffset.getLastReadMsgId());
+        List<Message> messageList = messageMapper.getMessageBySenderAndReceiverId(1L, 2L,deviceReadOffset.getLastReadMsgId(),10);
         if(messageList.isEmpty()){
             return;
         }
@@ -411,7 +426,7 @@ class ImApplicationTests {
         Group group = groupMapper.getGroupById(1L);
         GroupDeviceReadOffset groupDeviceReadOffset = groupDeviceReadOffsetMapper.getGroupDeviceReadOffset(1L, "eaf4897ea8eabfff", 1L);
         System.out.println(groupDeviceReadOffset.getLastReadMsgId());
-        List<GroupMessage> groupMessages = groupMessageMapper.getGroupMessagesByGroupId(group.getGroupId(),groupDeviceReadOffset.getLastReadMsgId());
+        List<GroupMessage> groupMessages = groupMessageMapper.getGroupMessagesByGroupId(group.getGroupId(),groupDeviceReadOffset.getLastReadMsgId(),20L);
         if(groupMessages.isEmpty()){
             return;
         }
